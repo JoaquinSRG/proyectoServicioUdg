@@ -1,0 +1,74 @@
+body {
+  background: #f0f1f3;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 310px;
+}
+
+.udg-logo {
+  display: block;
+  margin: 1rem auto 1rem;
+}
+
+.login-card h1 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #6b6e75;
+  margin: 0 0 1rem;
+}
+
+.login-card label {
+  display: block;
+  font-size: 12px;
+  color: #6b6e75;
+  margin-bottom: 4px;
+}
+
+.login-card input {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1px solid #c5c8ce;
+  background: #eef2fb;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.3s;
+}
+
+.login-card input:focus {
+  border-bottom-color: #1e3a8a;
+}
+
+.login-card button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(to right, #2ec4e6, #1e5fa5);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}

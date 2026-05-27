@@ -1,17 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Udg</title>
-</head>
-<body>
-  <h1>Iniciar sesion</h1>
-  <form action="">
-    <label for="">Usuario:</label>
-    <input type="user" name="user" id="logInUser">
-    <label for="">Contraseña</label>
-    <input type="password" name="password" id="logInPassword">
-  </form>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="login-card">
+      <!-- Pendiente agregar el action del form tag cuando el backend este disponible -->
+      <form action="" method="post">
+        <h1>Iniciar sesión</h1>
+        <img
+          src="assets/images/udgPlusLogInLogo.jpg"
+          alt="udgPlusLogo"
+          class="udg-logo"
+        />
+        <label for="user"></label>
+        <input
+          type="text"
+          name="user"
+          id="user"
+          placeholder="Usuario"
+          required
+        />
+
+        <label for="password"></label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Contraseña"
+          required
+        />
+
+        <button type="submit">Iniciar sesión</button>
+      </form>
+    </div>
+  </body>
 </html>
