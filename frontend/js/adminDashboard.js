@@ -17,6 +17,7 @@ api("/perfil")
 async function loadDeptos() {
   const ds = await fetch(API + "/departamentos").then((r) => r.json());
   const opts = ds
+    .filter((d) => d.codigo !== "admin") // oculta el depto de privilegios admin
     .map(
       (d) =>
         `<option value="${d.id}">#${d.id} · ${d.nombre} (${d.codigo})</option>`,
