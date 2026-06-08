@@ -101,6 +101,7 @@
 
 .page-admin main {
   display: flex;
+  align-items: flex-start;
 }
 
 .page-admin .card {
