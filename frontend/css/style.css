@@ -1,5 +1,19 @@
 /* ─── Globals (compartidos entre páginas) ─────────────────── */
 
+/* Texto solo para lectores de pantalla: accesible pero invisible.
+   Lo usan las <label> del login para no romper el diseño con placeholder. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ─── page-index ──────────────────────────────────────────── */
 
 .page-index {
@@ -179,10 +193,7 @@
   word-break: break-all;
 }
 
-/* ─── Respuestas por departamento (modal ancho + tablas) ─── */
-.page-admin dialog.modal-wide {
-  max-width: 920px;
-}
+/* ─── Respuestas por departamento (tablas colapsables) ─── */
 .page-admin .resp-form {
   display: flex;
   align-items: center;

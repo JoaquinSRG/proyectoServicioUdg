@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Udg</title>
-    <link rel="stylesheet" type="" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body class="page-index">
     <main>
@@ -15,17 +15,19 @@
             src="assets/images/udgPlusLogInLogo.jpg"
             alt="udgPlusLogo"
             class="udg-logo"
+            width="177"
+            height="64"
           />
-          <label for="user"></label>
+          <label for="user" class="sr-only">Correo electrónico</label>
           <input
-            type="text"
+            type="email"
             name="user"
             id="user"
             placeholder="Correo electrónico"
             required
           />
 
-          <label for="password"></label>
+          <label for="password" class="sr-only">Contraseña</label>
           <input
             type="password"
             name="password"
@@ -40,6 +42,5 @@
       </div>
       <script type="module" src="js/login.js"></script>
     </main>
-    <footer></footer>
   </body>
 </html>

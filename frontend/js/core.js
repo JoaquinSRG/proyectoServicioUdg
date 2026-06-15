@@ -38,7 +38,16 @@ export async function api(path, method = "GET", body) {
   }
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.detail || "Error");
+  if (!res.ok) {
+    // FastAPI manda 'detail' como string (errores normales) o como array de
+    // objetos {loc, msg, ...} en errores de validación 422. Cubrimos ambos
+    // para no terminar mostrando "[object Object]" al usuario.
+    const d = data.detail;
+    const msg = Array.isArray(d)
+      ? d.map((e) => e.msg).join(", ")
+      : d || "Error";
+    throw new Error(msg);
+  }
   return data;
 }
 

@@ -1,4 +1,4 @@
-import { API, api, $, val, esc, on, requireAuth } from "./core.js";
+import { api, $, val, esc, on, requireAuth } from "./core.js";
 
 requireAuth();
 
@@ -21,7 +21,7 @@ api("/perfil")
   .catch(() => {});
 
 async function loadDeptos() {
-  const ds = await fetch(API + "/departamentos").then((r) => r.json());
+  const ds = await api("/departamentos");
 
   // Selects de FORMULARIOS (.depto): ocultamos el depto de privilegios admin
   const optsForm = ds
@@ -66,7 +66,6 @@ on("fCrear", async () => {
 
 on("fConsultar", async () => {
   const fs = await api("/formularios/mis-formularios");
-  $("modal").classList.remove("modal-wide");
   $("modalTitle").textContent = "Formularios existentes";
   $("modalBody").innerHTML = fs.length
     ? fs
@@ -172,7 +171,6 @@ on("uxBorrar", async () => {
 
 on("uConsultar", async () => {
   const us = await api("/usuarios");
-  $("modal").classList.remove("modal-wide");
   $("modalTitle").textContent = "Usuarios existentes";
   $("modalBody").innerHTML = us.length
     ? us
@@ -196,7 +194,7 @@ let deptoIdPorNombre = {};
 async function loadRespUsuario() {
   const [usuarios, deptos] = await Promise.all([
     api("/usuarios"),
-    fetch(API + "/departamentos").then((r) => r.json()),
+    api("/departamentos"),
   ]);
   usuariosCache = usuarios;
   deptoIdPorNombre = Object.fromEntries(deptos.map((d) => [d.nombre, d.id]));
