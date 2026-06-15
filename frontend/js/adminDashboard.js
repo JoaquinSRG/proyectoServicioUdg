@@ -64,13 +64,16 @@ async function loadDeptos() {
 loadDeptos();
 
 on("fCrear", async () => {
-  // El sheet es opcional; nombre, link y departamento no.
-  if (!val("fNombre") || !val("fLink") || !val("fDepto"))
-    return notify("Nombre, link y departamento son obligatorios.", "error");
+  // Todos obligatorios: nombre, link, hoja de Google Sheets y departamento.
+  if (!val("fNombre") || !val("fLink") || !val("fSheet") || !val("fDepto"))
+    return notify(
+      "Nombre, link, Google Sheets y departamento son obligatorios.",
+      "error",
+    );
   const f = await api("/formularios", "POST", {
     nombre: val("fNombre"),
     link: val("fLink"),
-    sheet_id: sheetId(val("fSheet")) || null,
+    sheet_id: sheetId(val("fSheet")),
     id_departamento: +val("fDepto"),
   });
   clear("fNombre", "fLink", "fSheet"); // deja el depto seleccionado
@@ -102,6 +105,8 @@ on("eGuardar", async () => {
   if (val("eSheet")) c.sheet_id = sheetId(val("eSheet"));
   if ($("eDepto").value) c.id_departamento = +$("eDepto").value;
   const f = await api(`/formularios/${id}`, "PUT", c);
+  // eDepto vuelve a "— no cambiar —" (su opción con value="").
+  clear("eId", "eNombre", "eLink", "eSheet", "eDepto");
   notify(
     `Editado: #${f.id} "${f.nombre}" → ${f.link} (${f.nombre_departamento}).`,
   );
@@ -169,6 +174,10 @@ function renderForm(f, abierto) {
 on("uCrear", async () => {
   if (!val("uNombre") || !val("uEmail") || !val("uPass"))
     return notify("Nombre, correo y contraseña son obligatorios.", "error");
+  // Validamos el formato aquí para mostrar el aviso en español; si no, el
+  // backend rechaza el correo con un mensaje en inglés.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val("uEmail")))
+    return notify("Escribe un correo electrónico válido.", "error");
   const u = await api("/usuarios/registrar", "POST", {
     nombre: val("uNombre"),
     email: val("uEmail"),

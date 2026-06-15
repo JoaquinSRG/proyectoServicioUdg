@@ -236,14 +236,16 @@ button:disabled {
   font-weight: 600;
   cursor: pointer;
 }
-.page-admin dialog {
+/* Solo el modal de listados (#modal); antes era `dialog` a secas y le pisaba
+   los estilos al diálogo de confirmación (.confirm-dialog). */
+.page-admin #modal {
   border: none;
   border-radius: 8px;
   padding: 0;
   width: 90%;
   max-width: 520px;
 }
-.page-admin dialog::backdrop {
+.page-admin #modal::backdrop {
   background: rgba(0, 0, 0, 0.5);
 }
 .page-admin .modal-box {
