@@ -20,127 +20,141 @@
       </div>
     </header>
     <main>
-      <section class="card resp-panel">
-        <h2>Respuestas por departamento</h2>
-        <div class="resp-controls">
-          <select id="rDepto" class="depto"></select>
-          <button id="rVer">Ver respuestas</button>
-          <label class="resp-toggle"
-            ><input type="checkbox" id="rExpandir" /> Mostrar tablas
-            desplegadas</label
-          >
-        </div>
-        <div id="respOut" class="resp-placeholder">
-          Selecciona un departamento y da "Ver respuestas".
-        </div>
-      </section>
+      <div class="col-left">
+        <section class="card collapsed">
+          <div class="card-header">
+            <h2>Formularios</h2>
+            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+          </div>
+          <div class="card-body">
+            <h2>Insertar formularios a la base de datos</h2>
+            <input
+              id="fNombre"
+              placeholder="Nombre del formulario"
+              autocomplete="off"
+            />
+            <input
+              id="fLink"
+              placeholder="Link del formulario"
+              autocomplete="off"
+            />
+            <input
+              id="fSheet"
+              placeholder="Link de Google Sheets relacionado (o solo su ID)"
+              autocomplete="off"
+            />
+            <select id="fDepto" class="depto"></select>
+            <button id="fCrear">Guardar formulario</button>
+            <h2>Editar formulario</h2>
+            <select id="eSelect" class="form-select"></select>
+            <input
+              id="eNombre"
+              placeholder="Nuevo nombre del formulario"
+              autocomplete="off"
+            />
+            <input
+              id="eLink"
+              placeholder="Nuevo link del formulario"
+              autocomplete="off"
+            />
+            <input
+              id="eSheet"
+              placeholder="Nuevo link de Google Sheets relacionado"
+              autocomplete="off"
+            />
+            <select id="eDepto" class="depto"></select>
+            <button id="eGuardar">Guardar cambios</button>
 
-      <section class="card resp-panel">
-        <h2>Respuestas por usuario</h2>
-        <div class="resp-controls">
-          <select id="ruUsuario" class="ru-select"></select>
-          <button id="ruVer">Ver respuestas</button>
-          <label class="resp-toggle"
-            ><input type="checkbox" id="ruExpandir" /> Mostrar tablas
-            desplegadas</label
-          >
-        </div>
-        <div id="ruOut" class="resp-placeholder">
-          Selecciona un usuario y da "Ver respuestas".
-        </div>
-      </section>
+            <h2>Eliminar formulario</h2>
+            <select id="xSelect" class="form-select"></select>
+            <button id="xBorrar">Eliminar</button>
+            <h2>Consultar formularios en la base de datos</h2>
+            <button id="fConsultar">Consultar existentes</button>
+          </div>
+        </section>
 
-      <div class="row-break"></div>
+        <section class="card collapsed">
+          <div class="card-header">
+            <h2>Usuarios</h2>
+            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+          </div>
+          <div class="card-body">
+            <h2>Registrar usuario</h2>
+            <input id="uNombre" placeholder="Nombre" autocomplete="off" />
+            <input
+              id="uEmail"
+              type="email"
+              placeholder="Correo electronico"
+              autocomplete="email"
+            />
+            <input
+              id="uPass"
+              type="password"
+              placeholder="Contraseña"
+              autocomplete="new-password"
+            />
+            <select id="uDepto" class="depto-user"></select>
+            <button id="uCrear">Registrar usuario</button>
 
-      <section class="card">
-        <h2>Insertar formularios a la base de datos</h2>
-        <input
-          id="fNombre"
-          placeholder="Nombre del formulario"
-          autocomplete="off"
-        />
-        <input
-          id="fLink"
-          placeholder="Link del formulario"
-          autocomplete="off"
-        />
-        <input
-          id="fSheet"
-          placeholder="Link de Google Sheets relacionado (o solo su ID)"
-          autocomplete="off"
-        />
-        <select id="fDepto" class="depto"></select>
-        <button id="fCrear">Guardar formulario</button>
-        <h2>Editar formulario</h2>
-        <select id="eSelect" class="form-select"></select>
-        <input
-          id="eNombre"
-          placeholder="Nuevo nombre del formulario"
-          autocomplete="off"
-        />
-        <input
-          id="eLink"
-          placeholder="Nuevo link del formulario"
-          autocomplete="off"
-        />
-        <input
-          id="eSheet"
-          placeholder="Nuevo link de Google Sheets relacionado"
-          autocomplete="off"
-        />
-        <select id="eDepto" class="depto"></select>
-        <button id="eGuardar">Guardar cambios</button>
+            <h2>Editar usuario</h2>
+            <select id="ueSelect" class="user-select"></select>
+            <input id="ueNombre" placeholder="Nuevo nombre" autocomplete="off" />
+            <input
+              id="ueEmail"
+              type="email"
+              placeholder="Nuevo correo electrónico"
+              autocomplete="off"
+            />
+            <input
+              id="uePass"
+              type="password"
+              placeholder="Nueva contraseña (opcional)"
+              autocomplete="new-password"
+            />
+            <select id="ueDepto" class="depto-user"></select>
+            <button id="ueGuardar">Guardar cambios</button>
 
-        <h2>Eliminar formulario</h2>
-        <select id="xSelect" class="form-select"></select>
-        <button id="xBorrar">Eliminar</button>
-        <h2>Consultar formularios en la base de datos</h2>
-        <button id="fConsultar">Consultar existentes</button>
-      </section>
+            <h2>Eliminar usuario</h2>
+            <select id="uxSelect" class="user-select"></select>
+            <button id="uxBorrar">Eliminar usuario</button>
 
-      <section class="card">
-        <h2>Registrar usuario</h2>
-        <input id="uNombre" placeholder="Nombre" autocomplete="off" />
-        <input
-          id="uEmail"
-          type="email"
-          placeholder="Correo electronico"
-          autocomplete="email"
-        />
-        <input
-          id="uPass"
-          type="password"
-          placeholder="Contraseña"
-          autocomplete="new-password"
-        />
-        <select id="uDepto" class="depto-user"></select>
-        <button id="uCrear">Registrar usuario</button>
+            <h2>Consultar usuarios existentes en la base de datos</h2>
+            <button id="uConsultar">Consultar usuarios existentes</button>
+          </div>
+        </section>
+      </div>
 
-        <h2>Editar usuario</h2>
-        <select id="ueSelect" class="user-select"></select>
-        <input id="ueNombre" placeholder="Nuevo nombre" autocomplete="off" />
-        <input
-          id="ueEmail"
-          type="email"
-          placeholder="Nuevo correo electrónico"
-          autocomplete="off"
-        />
-        <input
-          id="uePass"
-          type="password"
-          placeholder="Nueva contraseña (opcional)"
-          autocomplete="new-password"
-        />
-        <select id="ueDepto" class="depto-user"></select>
-        <button id="ueGuardar">Guardar cambios</button>
+      <div class="col-right">
+        <section class="card resp-panel">
+          <h2>Respuestas por departamento</h2>
+          <div class="resp-controls">
+            <select id="rDepto" class="depto"></select>
+            <button id="rVer">Ver respuestas</button>
+            <label class="resp-toggle"
+              ><input type="checkbox" id="rExpandir" /> Mostrar tablas
+              desplegadas</label
+            >
+          </div>
+          <div id="respOut" class="resp-placeholder">
+            Selecciona un departamento y da "Ver respuestas".
+          </div>
+        </section>
 
-        <h2>Eliminar usuario</h2>
-        <select id="uxSelect" class="user-select"></select>
-        <button id="uxBorrar">Eliminar usuario</button>
-
-        <h2>Consultar usuarios existentes en la base de datos</h2>
-        <button id="uConsultar">Consultar usuarios existentes</button>
-      </section>
+        <section class="card resp-panel">
+          <h2>Respuestas por usuario</h2>
+          <div class="resp-controls">
+            <select id="ruUsuario" class="ru-select"></select>
+            <button id="ruVer">Ver respuestas</button>
+            <label class="resp-toggle"
+              ><input type="checkbox" id="ruExpandir" /> Mostrar tablas
+              desplegadas</label
+            >
+          </div>
+          <div id="ruOut" class="resp-placeholder">
+            Selecciona un usuario y da "Ver respuestas".
+          </div>
+        </section>
+      </div>
 
       <dialog id="modal">
         <div class="modal-box">

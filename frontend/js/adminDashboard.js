@@ -185,6 +185,12 @@ function bloqueForm(nombre, count, contenido, abierto) {
   );
 }
 
+const trimHeaders = (hs) => {
+  const h = [...hs];
+  while (h.length && !h[h.length - 1].trim()) h.pop();
+  return h;
+};
+
 // Cada formulario se renderiza por separado: su título + su propia tabla.
 function renderForm(f, abierto) {
   let contenido;
@@ -193,9 +199,11 @@ function renderForm(f, abierto) {
   else if (!f.rows.length)
     contenido = `<p class="resp-empty">Sin respuestas todavía.</p>`;
   else {
-    const thead = `<tr>${f.headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr>`;
+    const headers = trimHeaders(f.headers);
+    const n = headers.length;
+    const thead = `<tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr>`;
     const tbody = f.rows
-      .map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`)
+      .map((r) => `<tr>${r.slice(0, n).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`)
       .join("");
     contenido = `<div class="resp-scroll"><table class="resp-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
   }
@@ -350,9 +358,11 @@ function renderRespUsuario(f, email, abierto) {
       if (!filas.length)
         contenido = `<p class="resp-empty">Pendiente · este usuario no ha contestado.</p>`;
       else {
-        const thead = `<tr>${f.headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr>`;
+        const headers = trimHeaders(f.headers);
+        const n = headers.length;
+        const thead = `<tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr>`;
         const tbody = filas
-          .map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`)
+          .map((r) => `<tr>${r.slice(0, n).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`)
           .join("");
         contenido = `<div class="resp-scroll"><table class="resp-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
       }
@@ -360,3 +370,19 @@ function renderRespUsuario(f, email, abierto) {
   }
   return bloqueForm(f.nombre, count, contenido, abierto);
 }
+
+// ─── Card collapsible toggle ────────────────────────────────
+document.querySelectorAll(".card-header").forEach((header) => {
+  header.addEventListener("click", () => {
+    const card = header.closest(".card");
+    const collapsed = card.classList.toggle("collapsed");
+    header.querySelector(".card-toggle").setAttribute("aria-expanded", String(!collapsed));
+  });
+});
+
+// Iguala el ancho de los cards colapsados al más ancho (Formularios)
+requestAnimationFrame(() => {
+  const cards = [...document.querySelectorAll(".col-left .card")];
+  const maxW = Math.max(...cards.map((c) => c.offsetWidth));
+  cards.forEach((c) => (c.style.minWidth = maxW + "px"));
+});

@@ -197,7 +197,25 @@ button:disabled {
 
 .page-admin main {
   display: flex;
+  gap: 1rem;
   align-items: flex-start;
+}
+.page-admin .col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+.page-admin .col-left .card-body {
+  min-width: 260px;
+  max-width: 320px;
+}
+.page-admin .col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .page-admin .card {
@@ -206,8 +224,7 @@ button:disabled {
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 1.5rem;
-  margin-right: 1rem;
-  max-width: 16%;
+  box-sizing: border-box;
 }
 .page-admin .card h2 {
   font-size: 15px;
@@ -334,7 +351,10 @@ button:disabled {
   margin: 0.25rem 0 1rem;
 }
 .page-admin .resp-scroll {
-  width: max-content;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
   margin-bottom: 1rem;
   border: 1px solid #e3e5e9;
   border-radius: 4px;
@@ -357,22 +377,25 @@ button:disabled {
   top: 0;
 }
 
-/* ─── Panel de respuestas inline (carta que crece con el contenido) ─── */
+/* ─── Panel de respuestas inline ─── */
 .page-admin .resp-panel {
   display: block;
-  flex: 0 0 auto;
-  max-width: none;
-  width: max-content;
-  align-self: flex-start;
+  min-width: 0;
 }
 .page-admin .resp-controls {
-  width: max-content;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
 }
-/* Solo los selectores de respuestas: ancho de la opcion mas larga */
 .page-admin #rDepto,
 .page-admin #ruUsuario {
-  width: max-content;
-  max-width: none;
+  width: auto;
+  max-width: 100%;
+  flex: 1;
+  min-width: 120px;
+  margin-bottom: 0;
 }
 .page-admin .resp-title {
   font-size: 16px;
@@ -384,17 +407,6 @@ button:disabled {
   font-size: 13px;
 }
 
-/* ─── Reordenamiento: respuestas arriba, las demas cartas abajo ─── */
-.page-admin main {
-  flex-wrap: wrap;
-}
-.page-admin .row-break {
-  flex-basis: 100%;
-  height: 0;
-}
-.page-admin .resp-panel {
-  margin-bottom: 1rem;
-}
 /* ─── page-user ──────────────────────────────────────────── */
 .page-user {
   background: #f0f1f3;
@@ -458,14 +470,49 @@ button:disabled {
   color: #6b6e75;
 }
 
-/* ─── Responsive: admin en pantallas chicas ──────────────── */
-/* En tablets las cartas al 16% quedan inservibles: les damos un ancho usable. */
-@media (max-width: 1024px) {
-  .page-admin .card {
-    max-width: 320px;
-  }
+/* ─── Card collapsible (formularios / usuarios) ──────────── */
+.page-admin .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+  user-select: none;
 }
-/* En móvil apilamos todo a una sola columna a ancho completo. */
+.page-admin .card-header h2 {
+  margin: 0;
+}
+.page-admin .card-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0;
+  color: #888;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.page-admin .card-toggle:hover {
+  background: #eef2fb;
+  color: #1e5fa5;
+}
+.page-admin .card.collapsed .card-toggle {
+  transform: rotate(-90deg);
+}
+.page-admin .card.collapsed .card-body {
+  display: none;
+}
+.page-admin .card.collapsed {
+  max-width: fit-content;
+  min-width: 0;
+}
+
+/* ─── Responsive: admin en pantallas chicas ──────────────── */
+/* En móvil apilamos columnas a una sola. */
 @media (max-width: 768px) {
   .page-admin {
     padding: 1rem;
@@ -476,13 +523,13 @@ button:disabled {
     gap: 0.5rem;
   }
   .page-admin main {
-    display: block;
+    flex-direction: column;
   }
-  .page-admin .card,
-  .page-admin .resp-panel {
+  .page-admin .col-left,
+  .page-admin .col-right {
+    min-width: 0;
     max-width: none;
-    width: auto;
-    margin-right: 0;
+    width: 100%;
   }
   .page-admin .resp-controls,
   .page-admin #rDepto,
@@ -490,7 +537,6 @@ button:disabled {
     width: 100%;
     max-width: 100%;
   }
-  /* La tabla de respuestas hace scroll horizontal dentro de su carta. */
   .page-admin .resp-scroll {
     width: 100%;
     overflow-x: auto;
