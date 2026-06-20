@@ -10,6 +10,7 @@
     <title>Admin Dashboard</title>
     <link rel="icon" href="assets/images/udgPlusLogInLogo.jpg" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css" />
   </head>
   <body class="page-admin">
     <header class="admin-header">
@@ -21,6 +22,22 @@
     </header>
     <main>
       <div class="col-left">
+        <section class="card collapsed">
+          <div class="card-header">
+            <h2>Programar formulario</h2>
+            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+          </div>
+          <div class="card-body">
+            <h2>Establecer fechas de apertura y cierre</h2>
+            <select id="pSelect"></select>
+            <label for="pInicio">Fecha y hora de inicio</label>
+            <input type="text" id="pInicio" placeholder="Selecciona fecha y hora" readonly />
+            <label for="pFin">Fecha y hora de cierre</label>
+            <input type="text" id="pFin" placeholder="Selecciona fecha y hora" readonly />
+            <button id="pProgramar">Programar</button>
+          </div>
+        </section>
+
         <section class="card collapsed">
           <div class="card-header">
             <h2>Formularios</h2>
@@ -163,6 +180,7 @@
           <div id="modalBody"></div>
         </div>
       </dialog>
+      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
       <script type="module" src="js/admin/index.js"></script>
     </main>
   </body>

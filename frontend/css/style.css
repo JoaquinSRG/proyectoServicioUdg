@@ -470,6 +470,29 @@ button:disabled {
   color: #6b6e75;
 }
 
+/* ─── Flatpickr: color azul del sitio ───────────────────── */
+.flatpickr-months {
+  background: #2795c8;
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: #2795c8;
+  border-color: #2795c8;
+}
+.flatpickr-day:hover {
+  background: #eef2fb;
+}
+
+/* ─── Inputs/selects: borde negro al hacer focus ─────────── */
+.page-admin input:focus,
+.page-admin select:focus {
+  border: 1px solid #333;
+  border-radius: 2px;
+  background: #eef2fb;
+}
+
 /* ─── Card collapsible (formularios / usuarios) ──────────── */
 .page-admin .card-header {
   display: flex;

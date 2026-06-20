@@ -1,5 +1,5 @@
 import { api, $, on, esc, requireAuth } from "../core.js";
-import { initFormularios } from "./formularios.js";
+import { initFormularios, initProgramar } from "./formularios.js";
 import { initUsuarios } from "./usuarios.js";
 import { initRespDeptos, initRespUsuario } from "./respuestas.js";
 
@@ -50,6 +50,7 @@ async function loadDeptos() {
 
 loadDeptos();
 initFormularios();
+initProgramar();
 initUsuarios();
 initRespDeptos();
 initRespUsuario();

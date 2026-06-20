@@ -18,6 +18,7 @@ export async function loadFormSelects() {
     .join("");
   $("eSelect").innerHTML = placeholder + opts;
   $("xSelect").innerHTML = placeholder + opts;
+  $("pSelect").innerHTML = placeholder + opts;
 }
 
 export function initFormularios() {
@@ -79,5 +80,39 @@ export function initFormularios() {
     await api(`/formularios/${id}`, "DELETE");
     await loadFormSelects();
     notify(`Formulario "${nombre}" eliminado.`);
+  });
+}
+
+export function initProgramar() {
+  const fpInicio = flatpickr($("pInicio"), {
+    enableTime: true,
+    dateFormat: "d/m/Y H:i",
+    time_24hr: true,
+    minDate: "today",
+  });
+  const fpFin = flatpickr($("pFin"), {
+    enableTime: true,
+    dateFormat: "d/m/Y H:i",
+    time_24hr: true,
+    minDate: "today",
+  });
+
+  on("pProgramar", async () => {
+    const id = $("pSelect").value;
+    const inicio = fpInicio.selectedDates[0];
+    const fin = fpFin.selectedDates[0];
+    if (!id) return notify("Selecciona un formulario.", "error");
+    if (!inicio || !fin) return notify("Fecha de inicio y cierre son obligatorias.", "error");
+    if (inicio >= fin) return notify("La fecha de inicio debe ser anterior al cierre.", "error");
+    const s = await api("/formularios/programar", "POST", {
+      id_formulario: +id,
+      fecha_inicio: inicio.toISOString(),
+      fecha_fin: fin.toISOString(),
+    });
+    const nombre = $("pSelect").options[$("pSelect").selectedIndex].text;
+    $("pSelect").value = "";
+    fpInicio.clear();
+    fpFin.clear();
+    notify(`Programado: "${nombre}" abre ${new Date(s.fecha_inicio).toLocaleString()} — cierra ${new Date(s.fecha_fin).toLocaleString()}.`);
   });
 }
