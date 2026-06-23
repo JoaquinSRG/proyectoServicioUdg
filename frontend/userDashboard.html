@@ -19,8 +19,15 @@
         <button id="logOut">Cerrar sesión</button>
       </div>
     </header>
-    <main>
+    <main id="mainLayout">
       <div id="forms" class="forms-grid"></div>
+      <div class="form-panel">
+        <div class="form-panel-header">
+          <span id="expandTitle" class="expand-title"></span>
+          <button id="expandClose" aria-label="Cerrar">✕</button>
+        </div>
+        <iframe id="formFrame" src="" frameborder="0"></iframe>
+      </div>
     </main>
     <script type="module" src="js/userDashboard.js"></script>
   </body>

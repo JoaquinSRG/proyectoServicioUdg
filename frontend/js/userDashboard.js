@@ -7,24 +7,64 @@ on("logOut", () => {
   location.href = "index.html";
 });
 
-// Saludo con el email de quien inició sesión
 api("/perfil")
   .then((me) => ($("userName").textContent = me.usuario))
   .catch(() => {});
 
-// Carga solo los formularios que este usuario puede ver (filtrados por su departamento en el backend)
+function embedUrl(raw) {
+  try {
+    const u = new URL(raw);
+    if (u.hostname === "docs.google.com" && u.pathname.includes("/forms/")) {
+      u.searchParams.set("embedded", "true");
+      return u.toString();
+    }
+  } catch {}
+  return null;
+}
+
+const layout = $("mainLayout");
+const frame = $("formFrame");
+const expandTitle = $("expandTitle");
+let activeCard = null;
+
+function closePanel() {
+  layout.classList.remove("split-open");
+  frame.src = "";
+  if (activeCard) { activeCard.classList.remove("active"); activeCard = null; }
+}
+
+on("expandClose", closePanel);
+
+$("forms").addEventListener("click", (e) => {
+  const card = e.target.closest(".form-card");
+  if (!card) return;
+
+  if (activeCard === card) { closePanel(); return; }
+
+  const url = embedUrl(card.dataset.link);
+  if (!url) { window.open(card.dataset.link, "_blank", "noopener"); return; }
+
+  if (activeCard) activeCard.classList.remove("active");
+  activeCard = card;
+  card.classList.add("active");
+
+  expandTitle.textContent = card.dataset.nombre;
+  frame.src = url;
+  layout.classList.add("split-open");
+});
+
 (async () => {
   try {
     const forms = await api("/formularios/mis-formularios");
-    if (!forms) return; // token vencido: api() ya redirige al login
+    if (!forms) return;
     $("forms").innerHTML = forms.length
       ? forms
           .map(
             (f) =>
-              `<a class="form-card" href="${esc(safeUrl(f.link))}" target="_blank" rel="noopener">
+              `<button class="form-card" data-link="${esc(safeUrl(f.link))}" data-nombre="${esc(f.nombre)}">
                  ${esc(f.nombre)}
                  <span class="dept">${esc(f.nombre_departamento)}</span>
-               </a>`,
+               </button>`,
           )
           .join("")
       : `<div class="empty">No tienes formularios asignados por el momento.</div>`;
