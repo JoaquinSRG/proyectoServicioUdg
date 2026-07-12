@@ -5,41 +5,39 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-REMITENTE_CORREO = os.getenv("SMTP_USER") 
+GOOGLE_SCRIPT_URL = os.getenv("GOOGLE_SCRIPT_URL")
+GOOGLE_SCRIPT_TOKEN = os.getenv("GOOGLE_SCRIPT_TOKEN")
 
 def enviar_correo(destinatario: str, asunto: str, cuerpo_html: str):
-    if not BREVO_API_KEY or not REMITENTE_CORREO:
-        print("Configuración de la API incompleta. Correo no enviado.")
+    if not GOOGLE_SCRIPT_URL or not GOOGLE_SCRIPT_TOKEN:
+        print("Variable GOOGLE_SCRIPT_URL no configurada. Correo abortado.")
         return False
 
-    url_api = "https://api.brevo.com/v3/smtp/email"
-    
-    # Encabezados obligatorios para autenticarse con Brevo
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "api-key": BREVO_API_KEY
-    }
-
+    url_con_token = f"{GOOGLE_SCRIPT_URL}?token={GOOGLE_SCRIPT_TOKEN}"
     # Estructura del JSON que pide la documentación de Brevo
     payload = {
-        "sender": {"email": REMITENTE_CORREO, "name": "Sistema de Formulario"},
-        "to": [{"email": destinatario}],
-        "subject": asunto,
-        "htmlContent": cuerpo_html
+        "destinatario": destinatario,
+        "subject": asunto,  
+        "asunto": asunto,
+        "cuerpo_html": cuerpo_html
     }
 
     try:
        
-        response = requests.post(url_api, json=payload, headers=headers)
+        response = requests.post(url_con_token, json=payload)
         
-        if response.status_code in [200, 201]:
-            return True
+        resultado = response.json()
+        if response.status_code == 200:
+            resultado = response.json()
+            if resultado.get("status") == "success":
+                return True
+            else:
+                print(f"Google Apps Script reportó un error: {resultado.get('message')}")
+                return False
         else:
-            print(f"Brevo rechazó el correo: {response.status_code} - {response.text}")
+            print(f"Falló la conexión con Google. Status code: {response.status_code}")
             return False
             
     except Exception as e:
-        print(f"Error de conexión al enviar correo vía API: {e}")
+        print(f"Error al conectar con Google Apps Script: {e}")
+        return False

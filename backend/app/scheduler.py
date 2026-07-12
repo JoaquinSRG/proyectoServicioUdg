@@ -30,7 +30,23 @@ def evaluar_y_notificar_formularios():
             print(f"   👥 Usuarios encontrados para el Depto {form.id_departamento}: {len(usuarios)}")
             for usuario in usuarios:
                 print(f"   📧 Intentando enviar correo a: {usuario.email}")
-                html = f"<h3>¡Hola, {usuario.nombre}!</h3><p>El formulario <b>{form.nombre}</b> ya está disponible para su llenado.</p>"
+                html = f"""<div style="width: 100%; background-color: #f9f9f9; padding: 40px 20px; font-family: Arial, sans-serif;">
+<div style="color:#ffff ;max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; display: flex; align-items: center; justify-content: center;"> 
+<div style="padding: 10px; width: 100%; height: 300px; background: linear-gradient(to right, #2ec4e6, #1e5fa5); display: flex; flex-direction: column; align-items: center; justify-content: center; ">
+        <table style="padding: 10px; ">
+            <thead ><tr ><h3 style="padding: 20px; border-radius: 12px; width: 100%; color: #ffff; height: 40px; background:#1e5fa5; display: flex; align-items: center; justify-content: center;">¡Hola, {usuario.nombre}!</h3></tr></thead>
+            <tbody >
+                <tr>
+                    <td><p>El formulario <b>{form.nombre}</b> ya está disponible para su llenado.</p></td>
+                </tr>
+                <tr><td><p><b>Recuerde:</b> el formulario cierra: {prog.fecha_fin}, Esperamos sus respuestas </p></td></tr>
+                <tr style="display: flex; align-items: center; justify-content: center;"><td><h2>Gracias</h2></td></tr>
+            </tbody>
+        </table>
+</div>
+</div>
+</div>
+"""
                 exito = email_service.enviar_correo(usuario.email, f"Apertura: {form.nombre}", html)
                 
                 # Registrar en el log de notificaciones
@@ -60,7 +76,22 @@ def evaluar_y_notificar_formularios():
             usuarios = db.query(models.UserDB).filter(models.UserDB.id_departamento == form.id_departamento).all()
             
             for usuario in usuarios:
-                html = f"<h3>Recordatorio Urgente</h3><p>El formulario {form.nombre} cerrará pronto: {prog.fecha_fin}. Por favor, complétalo.</p>"
+                html = f"""<div style="width: 100%; background-color: #f9f9f9; padding: 40px 20px; font-family: Arial, sans-serif;">
+<div style="color:#ffff ;max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; display: flex; align-items: center; justify-content: center;"> 
+<div style="padding: 10px; width: 100%; height: 300px; background: linear-gradient(to right, #2ec4e6, #1e5fa5); display: flex; flex-direction: column; align-items: center; justify-content: center; ">
+        <table style="padding: 10px; ">
+            <thead ><tr ><h3 style="padding: 20px; border-radius: 12px; width: 100%; color: #ffff; height: 40px; background:#1e5fa5; display: flex; align-items: center; justify-content: center;">{usuario.nombre}, Recordatorio Urgente</h3></tr></thead>
+            <tbody >
+                <tr>
+                    <td><p>El formulario {form.nombre} cerrará pronto: {prog.fecha_fin}. Por favor, complétalo.</p></td>  
+                </tr>
+                <tr style="display: flex; align-items: center; justify-content: center;"><td><h2>Gracias</h2></td></tr>
+            </tbody>
+        </table>
+</div>
+</div>
+</div>
+"""
                 exito = email_service.enviar_correo(usuario.email, f"Recordatorio de Cierre: {form.nombre}", html)
                 
                 log = models.NotificationLogDB(

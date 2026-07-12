@@ -11,9 +11,6 @@ def leer_respuestas(sheet_id: str):
     if not rows:
         return [], []
     headers = rows[0]
-    while headers and headers[-1].strip() == "":
-        headers = headers[:-1]
-    n = len(headers)
     body = rows[1:]
-    body = [r[:n] + [""] * max(0, n - len(r)) for r in body]
+    body = [r + [""] * (len(headers) - len(r)) for r in body]
     return headers, body
