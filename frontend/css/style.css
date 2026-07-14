@@ -254,7 +254,7 @@ button:disabled {
   cursor: pointer;
 }
 /* Solo el modal de listados (#modal); antes era `dialog` a secas y le pisaba
-   los estilos al diálogo de confirmación (.confirm-dialog). */
+   los estilos al diálogo de confirmación  */
 .page-admin #modal {
   border: none;
   border-radius: 8px;
