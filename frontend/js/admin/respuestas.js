@@ -1,4 +1,5 @@
 import { api, $, esc, on, notify } from "../core.js";
+import { cachedForms } from "./formularios.js";
 
 const trimHeaders = (hs) => {
   const h = [...hs];
@@ -6,12 +7,27 @@ const trimHeaders = (hs) => {
   return h;
 };
 
-function bloqueForm(nombre, count, contenido, abierto) {
+// El endpoint de respuestas no manda el sheet_id; lo buscamos en la lista
+// de formularios que ya carga formularios.js (mismo id de formulario).
+function sheetIdDe(formId) {
+  const f = cachedForms.find((x) => x.id === formId);
+  return f && f.sheet_id;
+}
+
+function botonHoja(sheetId, nombre) {
+  if (!sheetId) return "";
+  return `<button type="button" class="resp-sheet-btn" data-sheet="${esc(sheetId)}" data-nombre="${esc(nombre)}">Editar hoja</button>`;
+}
+
+function bloqueForm(id, nombre, count, contenido, abierto) {
   return (
     `<div class="resp-block${abierto ? " is-open" : ""}">` +
+    `<div class="resp-form-row">` +
     `<button type="button" class="resp-form">` +
     `<span class="resp-chevron">▸</span> ${esc(nombre)} <span class="resp-count">(${count})</span>` +
     `</button>` +
+    botonHoja(sheetIdDe(id), nombre) +
+    `</div>` +
     `<div class="resp-body">${contenido}</div>` +
     `</div>`
   );
@@ -32,7 +48,7 @@ function renderForm(f, abierto) {
       .join("");
     contenido = `<div class="resp-scroll"><table class="resp-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
   }
-  return bloqueForm(f.nombre, f.total, contenido, abierto);
+  return bloqueForm(f.id, f.nombre, f.total, contenido, abierto);
 }
 
 function renderRespUsuario(f, email, abierto) {
@@ -61,12 +77,40 @@ function renderRespUsuario(f, email, abierto) {
       }
     }
   }
-  return bloqueForm(f.nombre, count, contenido, abierto);
+  return bloqueForm(f.id, f.nombre, count, contenido, abierto);
 }
+
+// Igual que embedUrl() en userDashboard.js, pero para Sheets: se abre en
+// modo edición para que el admin pueda corregir datos directamente.
+function sheetEditUrl(sheetId) {
+  return `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/edit?usp=sharing`;
+}
+
+const sheetPanel = $("sheetPanel");
+const sheetFrame = $("sheetFrame");
+const sheetTitle = $("sheetTitle");
+
+function closeSheetPanel() {
+  sheetPanel.classList.remove("open");
+  sheetFrame.src = "";
+}
+
+function openSheetPanel(sheetId, nombre) {
+  sheetTitle.textContent = nombre;
+  sheetFrame.src = sheetEditUrl(sheetId);
+  sheetPanel.classList.add("open");
+}
+
+$("sheetClose").addEventListener("click", closeSheetPanel);
 
 // Event delegation — avoids inline onclick in generated HTML
 function attachToggle(containerId) {
   $(containerId).addEventListener("click", (e) => {
+    const sheetBtn = e.target.closest(".resp-sheet-btn");
+    if (sheetBtn) {
+      openSheetPanel(sheetBtn.dataset.sheet, sheetBtn.dataset.nombre);
+      return;
+    }
     const btn = e.target.closest(".resp-form");
     if (btn) btn.closest(".resp-block").classList.toggle("is-open");
   });

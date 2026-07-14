@@ -5,7 +5,7 @@ const sheetId = (s) => {
   return m ? m[1] : s.trim();
 };
 
-let cachedForms = [];
+export let cachedForms = [];
 
 export async function loadFormSelects() {
   cachedForms = await api("/formularios/mis-formularios");

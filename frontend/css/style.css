@@ -295,12 +295,20 @@ button:disabled {
 }
 
 /* ─── Respuestas por departamento (tablas colapsables) ─── */
+.page-admin .resp-form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1.25rem 0 0.25rem;
+}
 .page-admin .resp-form {
   display: flex;
   align-items: center;
   gap: 6px;
   width: 100%;
-  margin: 1.25rem 0 0.25rem;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   padding: 0;
   background: none;
   border: none;
@@ -310,6 +318,64 @@ button:disabled {
   color: #1e5fa5;
   text-align: left;
   cursor: pointer;
+}
+.page-admin .resp-sheet-btn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(to right, #34a853, #1e8e3e);
+  color: #fff;
+  cursor: pointer;
+}
+
+/* ─── Panel lateral para editar la Google Sheet (admin) ─── */
+.page-admin .sheet-panel {
+  position: fixed;
+  top: 0;
+  right: -75%;
+  width: 75%;
+  min-width: 320px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.15);
+  transition: right 0.25s ease;
+  z-index: 100;
+}
+.page-admin .sheet-panel.open {
+  right: 0;
+}
+.page-admin .sheet-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+.page-admin #sheetTitle {
+  font-weight: 600;
+  color: #1e5fa5;
+  font-size: 15px;
+}
+.page-admin #sheetClose {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #555;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.page-admin #sheetFrame {
+  width: 100%;
+  flex: 1;
+  border: none;
+  display: block;
 }
 .page-admin .resp-chevron {
   display: inline-block;
@@ -474,30 +540,21 @@ button:disabled {
     0 4px 14px rgba(30, 95, 165, 0.15);
 }
 .page-user .form-panel {
+  position: fixed;
+  top: 0;
+  right: -40%;
+  width: 40%;
+  min-width: 320px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  max-width: 640px;
   background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 1rem;
-  height: 86vh;
-}
-.page-user .form-panel {
-  display: none;
+  box-shadow: -2px 0 16px rgba(0, 0, 0, 0.15);
+  transition: right 0.25s ease;
+  z-index: 100;
 }
 .page-user #mainLayout.split-open .form-panel {
-  display: flex;
-}
-.page-user .form-panel-header {
-  display: flex;
-}
-.page-user #formFrame {
-  display: block;
+  right: 0;
 }
 .page-user .form-panel-header {
   display: flex;
