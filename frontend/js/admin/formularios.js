@@ -1,4 +1,4 @@
-import { api, $, val, on, esc, notify, confirmDialog, clear, safeUrl } from "../core.js";
+import { api, downloadFile, $, val, on, esc, notify, confirmDialog, clear, safeUrl } from "../core.js";
 
 const sheetId = (s) => {
   const m = String(s).match(/\/d\/([a-zA-Z0-9-_]+)/);
@@ -19,6 +19,7 @@ export async function loadFormSelects() {
   $("eSelect").innerHTML = placeholder + opts;
   $("xSelect").innerHTML = placeholder + opts;
   $("pSelect").innerHTML = placeholder + opts;
+  if ($("repSelect")) $("repSelect").innerHTML = opts;
 }
 
 export function initFormularios() {
@@ -80,6 +81,33 @@ export function initFormularios() {
     await api(`/formularios/${id}`, "DELETE");
     await loadFormSelects();
     notify(`Formulario "${nombre}" eliminado.`);
+  });
+}
+
+export function initReportes() {
+  const idsSeleccionados = () =>
+    [...$("repSelect").selectedOptions].map((o) => +o.value);
+
+  on("repExcel", async () => {
+    const ids = idsSeleccionados();
+    if (!ids.length) return notify("Selecciona al menos un formulario.", "error");
+    await downloadFile(
+      "/admin/reportes/descargar-excel",
+      { formularios_ids: ids },
+      "reporte_formularios_consolidado.xlsx",
+    );
+    notify("Reporte Excel descargado.");
+  });
+
+  on("repPdf", async () => {
+    const ids = idsSeleccionados();
+    if (!ids.length) return notify("Selecciona al menos un formulario.", "error");
+    await downloadFile(
+      "/admin/reportes/exportar-pdf",
+      { formularios_ids: ids },
+      "reporte_formularios.pdf",
+    );
+    notify("Reporte PDF descargado.");
   });
 }
 

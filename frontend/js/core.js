@@ -58,6 +58,44 @@ export async function api(path, method = "GET", body) {
   return data;
 }
 
+// --- Descarga de archivos (Excel/PDF) ---
+// A diferencia de api(), la respuesta no es JSON sino un archivo binario
+// (StreamingResponse en el backend), así que se maneja como blob y se
+// dispara la descarga en el navegador mediante un <a> temporal.
+export async function downloadFile(path, body, fallbackName) {
+  const res = await fetch(API + path, {
+    method: "POST",
+    headers: {
+      ...(token() && { Authorization: `Bearer ${token()}` }),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401) {
+    localStorage.clear();
+    location.href = "index.html";
+    return;
+  }
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const d = data.detail;
+    const msg = Array.isArray(d) ? d.map((e) => e.msg).join(", ") : d || "Error al generar el archivo.";
+    throw new Error(msg);
+  }
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match ? match[1] : fallbackName;
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 // --- Feedback en pantalla (reemplazan a alert/confirm del navegador) ---
 
 // "Toast" flotante que aparece y se va solo. tipo: "ok" (verde) | "error" (rojo).
