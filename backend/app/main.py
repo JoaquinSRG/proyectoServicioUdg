@@ -512,3 +512,11 @@ def descargar_reporte_excel(
 ):
     # Llama al servicio que procesa todo en memoria y devuelve el archivo directamente
     return report_service.generar_excel_consolidado(formularios_ids, db)
+
+@app.post("/admin/reportes/exportar-pdf")
+def exportar_reporte_pdf(
+    formularios_ids: list[int] = Body(..., embed=True), 
+    db: Session = Depends(get_db)
+):
+    """Descarga un documento PDF formal con tablas consecutivas."""
+    return report_service.generar_pdf_consolidado(formularios_ids, db)
