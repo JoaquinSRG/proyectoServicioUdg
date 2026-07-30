@@ -22,6 +22,7 @@ class UserDB(Base):
     password_hash = Column(String)
     is_active = Column(Boolean, default=True)
     id_departamento = Column(Integer, ForeignKey("departamentos.id"))
+    acces = Column(Integer, nullable=True)
     
     depto_rel = relationship("DepartamentoDB", back_populates="usuarios") # Aquí guardamos el tag (admin, ventas, it)
 

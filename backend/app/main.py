@@ -45,7 +45,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
     # El token lleva el código del departamento (ej: 'admin')
     access_token = auth.create_access_token(
-        data={"sub": user.email, "dept": user.depto_rel.codigo}
+        data={"sub": user.email, "dept": user.depto_rel.codigo, "acces": user.acces}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -79,18 +79,39 @@ def listar_departamentos(db: Session = Depends(get_db)):
 
 @app.get("/usuarios", response_model=List[schemas.UserResponse])
 def listar_usuarios(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
-    if current_user["departamento"] != "admin":
+    print("--- DEPURACIÓN DE PERMISOS ---")
+    print("Departamento recibido:", repr(current_user.get("departamento")))
+    print("Tipo de Departamento:", type(current_user.get("departamento")))
+    print("Acceso recibido:", repr(current_user.get("acces")))
+    print("Tipo de Acceso:", type(current_user.get("acces")))
+    print("------------------------------")
+    if current_user["departamento"] != "admin" and int(current_user["acces"]) != 1:
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    usuarios = db.query(models.UserDB).all()
-    return [
-        {
-            "id": u.id,
-            "nombre": u.nombre,
-            "email": u.email,
-            "departamento": u.depto_rel.nombre if u.depto_rel else "Sin asignar"
-        } for u in usuarios
-    ]
+
+    if current_user["acces"] == 1:
+        usuarios = db.query(models.UserDB).join(models.UserDB.depto_rel).filter(models.DepartamentoDB.codigo==current_user["departamento"]).all()
+        return [
+                    {
+                        "id": u.id,
+                        "nombre": u.nombre,
+                        "email": u.email,
+                        "departamento": u.depto_rel.nombre if u.depto_rel else "Sin asignar",
+                        "acces": u.acces
+                    } for u in usuarios
+                ]
+    
+    if current_user["departamento"] == "admin":
+        usuarios = db.query(models.UserDB).all()
+        return [
+            {
+                "id": u.id,
+                "nombre": u.nombre,
+                "email": u.email,
+                "departamento": u.depto_rel.nombre if u.depto_rel else "Sin asignar",
+                "acces": u.acces
+            } for u in usuarios
+        ]
 
 @app.post("/usuarios/registrar", response_model=schemas.UserResponse)
 def crear_usuario(
@@ -98,18 +119,22 @@ def crear_usuario(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user)
 ):
-    if current_user["departamento"] != "admin":
+    if current_user["departamento"] != "admin" and current_user["acces"] != 1:
         raise HTTPException(status_code=403, detail="No autorizado")
 
     depto = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == usuario_nuevo.id_departamento).first()
     if not depto:
         raise HTTPException(status_code=404, detail="El ID de departamento no existe")
 
+    if current_user["acces"] == 1 and  depto.codigo != current_user["departamento"]:
+        raise HTTPException(status_code=404, detail="No autorizado para crear un usuario con un Depto diferente al suyo")
+
     hashed_pw = auth.get_password_hash(usuario_nuevo.password)
     nuevo_db_user = models.UserDB(
         email=usuario_nuevo.email,
         nombre=usuario_nuevo.nombre,
         id_departamento=usuario_nuevo.id_departamento,
+        acces=usuario_nuevo.acces,
         password_hash=hashed_pw
     )
     
@@ -121,7 +146,8 @@ def crear_usuario(
         "id": nuevo_db_user.id,
         "nombre": nuevo_db_user.nombre,
         "email": nuevo_db_user.email,
-        "departamento": depto.nombre
+        "departamento": depto.nombre,
+        "acces":nuevo_db_user.acces
     }
 
 @app.put("/admin/usuarios/{usuario_id}", response_model=dict)
@@ -132,7 +158,7 @@ def actualizar_usuario(
     current_user: dict = Depends(auth.get_current_user)
 ):
     # 1. Verificar seguridad (Solo Admin puede editar usuarios)
-    if current_user["departamento"] != "admin":
+    if current_user["departamento"] != "admin" and current_user["acces"] != 1:
         raise HTTPException(status_code=403, detail="No autorizado para modificar usuarios")
 
     # 2. Buscar al usuario en la base de datos
@@ -140,12 +166,22 @@ def actualizar_usuario(
     if not db_usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
+    depto = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == db_usuario.id_departamento).first()
+    if current_user["acces"] == 1 and depto.codigo != current_user["departamento"]:
+        raise HTTPException(status_code=404, detail="Usuario no pertenece a tu Departamento")
+
     # 3. Guardar estado anterior para el registro de auditoría
     datos_anteriores = f"Nombre: {db_usuario.nombre}, Email: {db_usuario.email}, Depto: {db_usuario.id_departamento}"
 
     # 4. Actualizar los campos que fueron enviados en la petición
     payload = usuario_data.model_dump(exclude_unset=True) # exclude_unset evita sobreescribir con None lo que no se mandó
-    
+
+
+    if "id_departamento" in payload:
+        id_depto = payload.get("id_departamento")
+        depto1 = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == id_depto).first()
+        if depto1 != current_user["departamento"]:
+             raise HTTPException(status_code=404, detail="No tiene permisos para cambiar el depto")
     
     if "password" in payload:
            
@@ -179,12 +215,17 @@ def eliminar_usuario(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user)
 ):
-    if current_user["departamento"] != "admin":
+    if current_user["departamento"] != "admin" and current_user["acces"] != 1:
         raise HTTPException(status_code=403, detail="No autorizado")
+
 
     db_user = db.query(models.UserDB).filter(models.UserDB.id == usuario_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    depto = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == db_user.id_departamento).first()
+    if current_user["acces"] == 1 and depto.codigo != current_user["departamento"]:
+        raise HTTPException(status_code=404, detail="Usuario no pertenece a tu Departamento")
     
     if db_user.email == current_user["email"]:
         raise HTTPException(status_code=400, detail="No puedes eliminarte a ti mismo")
@@ -466,24 +507,42 @@ def respuestas_por_departamento(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user),
 ):
-    if current_user["departamento"] != "admin":
+    if current_user["departamento"] != "admin" and current_user["acces"] != 1:
         raise HTTPException(status_code=403, detail="No autorizado")
 
-    depto = db.query(models.DepartamentoDB).filter(
-        models.DepartamentoDB.id == depto_id
-    ).first()
-    if not depto:
-        raise HTTPException(status_code=404, detail="Departamento no encontrado")
+    if current_user["departamento"] == "admin":
+        depto = db.query(models.DepartamentoDB).filter(
+            models.DepartamentoDB.id == depto_id
+        ).first()
+        if not depto:
+            raise HTTPException(status_code=404, detail="Departamento no encontrado")
 
-    forms = db.query(models.FormularioDB).filter(
-        models.FormularioDB.id_departamento == depto_id
-    ).all()
+        forms = db.query(models.FormularioDB).filter(
+            models.FormularioDB.id_departamento == depto_id
+        ).all()
+
+    if current_user["acces"] == 1:
+        
+        db_user = db.query(models.UserDB).filter(models.UserDB.email == current_user["email"]).first()
+        deptoId = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == db_user.id_departamento).first()
+        if depto_id != deptoId.id:
+            raise HTTPException(status_code=403, detail="No autorizado")
+        depto = db.query(models.DepartamentoDB).filter(
+            models.DepartamentoDB.id == deptoId.id
+        ).first()
+        if not depto:
+            raise HTTPException(status_code=404, detail="Departamento no encontrado")
+
+        forms = db.query(models.FormularioDB).filter(
+            models.FormularioDB.id_departamento == deptoId.id
+        ).all()
+        
 
     salida = []
     for f in forms:
         item = {
-            "id": f.id, "nombre": f.nombre, "tiene_sheet": False,
-            "headers": [], "rows": [], "total": 0, "error": None,
+        "id": f.id, "nombre": f.nombre, "tiene_sheet": False,
+        "headers": [], "rows": [], "total": 0, "error": None,
         }
         if not f.sheet_id:
             item["error"] = "Sin hoja de respuestas vinculada"

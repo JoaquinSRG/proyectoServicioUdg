@@ -6,12 +6,14 @@ class UserBase(BaseModel):
     email: EmailStr
     nombre: str
     departamento: str # Aquí guardamos el "tag" (it, ventas, rrhh)
+    acces: Optional[int] = None
 
 class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
     id_departamento: Optional[int] = None  
+    acces: Optional[int] = None
     
 
 class UserCreate(BaseModel):
@@ -19,12 +21,14 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     id_departamento: int # Solo para cuando creamos al usuario
+    acces: Optional[int] = None
 
 class UserResponse(BaseModel):
     id: int
     nombre: str
     email: EmailStr
     departamento: str # El nombre del depto para el Front
+    acces: Optional[int] = None
 
     class Config:
         from_attributes = True
