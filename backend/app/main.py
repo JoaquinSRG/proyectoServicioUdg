@@ -1,17 +1,17 @@
 from fastapi import FastAPI, Depends, HTTPException, status, APIRouter, Depends, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import or_, and_
 from datetime import datetime
 
 # Importaciones locales
-from . import models, schemas, auth, database 
+from . import models, schemas, auth, database, sheets_csv 
 from .database import engine, get_db
 from .auth import get_current_user
 from app.scheduler import scheduler
-from .sheets_csv import leer_respuestas
+from .sheets_csv import leer_respuestas, obtener_encabezados_formulario
 import app.report_service as report_service
 
 app = FastAPI()
@@ -579,3 +579,36 @@ def exportar_reporte_pdf(
 ):
     """Descarga un documento PDF formal con tablas consecutivas."""
     return report_service.generar_pdf_consolidado(formularios_ids, db)
+
+@app.get("/formularios/{form_id}/encabezados", response_model=List[Dict[str, Any]])
+def obtener_encabezados(
+    form_id: int, 
+    db: Session = Depends(get_db),
+    current_user: models.UserDB = Depends(auth.get_current_user) # Si requiere autenticación
+    
+):
+    if current_user["departamento"] != "admin":
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+    return sheets_csv.obtener_encabezados_formulario(form_id, db)
+
+@app.get("/formularios/{form_id}/estatus")
+def validar_estatus(
+    form_id: int, 
+    db: Session = Depends(get_db),
+    current_user: models.UserDB = Depends(auth.get_current_user)
+):
+        if current_user["departamento"] != "admin":
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        db_form = db.query(models.FormularioDB).filter(models.FormularioDB.id == form_id).first()
+        if not db_form:
+            raise HTTPException(status_code=404, detail="Formulario no encontrado")
+        if db_form.estatus == "asignado":
+            tiene_datos = report_service.tiene_respuestas(db_form.sheet_id)
+            if tiene_datos:
+                db_form.estatus = "en proceso"
+                db.commit()         
+                db.refresh(db_form)    
+        return {"form_id": form_id, "estatus": db_form.estatus, "tiene datos":tiene_datos}
+

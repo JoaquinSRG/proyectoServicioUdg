@@ -192,3 +192,11 @@ def generar_pdf_consolidado(formularios_ids: list[int], db: Session):
         media_type="application/pdf",
         headers={"Content-Disposition": "attachment; filename=reporte_formularios.pdf"}
     )
+
+def tiene_respuestas(sheet_id: str) -> bool:
+    try:
+        url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        df = pd.read_csv(url_csv, nrows=1)
+        return not df.empty
+    except Exception:
+        return False 

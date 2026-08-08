@@ -58,6 +58,7 @@ class FormBase(BaseModel):
     link: str
     id_departamento: int
     sheet_id: Optional[str] = None
+    estatus: Optional[str] = None
 
 class FormCreate(FormBase):
     pass
