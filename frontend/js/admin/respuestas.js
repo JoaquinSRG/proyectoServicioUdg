@@ -80,7 +80,7 @@ function renderRespUsuario(f, email, abierto) {
   return bloqueForm(f.id, f.nombre, count, contenido, abierto);
 }
 
-// Igual que embedUrl() en userDashboard.js, pero para Sheets: se abre en
+// Igual que embedUrl() en subJefeDashboard.js, pero para Sheets: se abre en
 // modo edición para que el admin pueda corregir datos directamente.
 function sheetEditUrl(sheetId) {
   return `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/edit?usp=sharing`;
