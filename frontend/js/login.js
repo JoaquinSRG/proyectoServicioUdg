@@ -1,5 +1,9 @@
 import { API, api } from "./core.js";
 
+// Códigos de departamento (perfil.departamento_tag) que deben ir a jefesDashboard
+// en vez de subJefesDashboard. Agregar más códigos aquí según se necesite.
+const DEPTOS_JEFES = ["coord_investigacion"];
+
 const form = document.getElementById("loginForm");
 const errorMsg = document.getElementById("errorMsg");
 
@@ -37,7 +41,9 @@ form.addEventListener("submit", async (e) => {
     location.href =
       perfil.departamento_tag === "admin"
         ? "adminDashboard.html"
-        : "subJefeDashboard.html";
+        : DEPTOS_JEFES.includes(perfil.departamento_tag)
+        ? "jefesDashboard.html"
+        : "subJefesDashboard.html";
   } catch (err) {
     errorMsg.textContent = err.message;
     errorMsg.style.display = "block";

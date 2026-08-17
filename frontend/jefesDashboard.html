@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Consulta los formularios asignados a tu departamento."
+    />
+    <title>Mis formularios</title>
+    <link rel="icon" href="assets/images/udgPlusLogInLogo.jpg" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="page-user">
+    <header class="dash-header">
+      <h1>Mis formularios</h1>
+      <div class="user-box">
+        <span class="user-name" id="userName"></span>
+        <button id="logOut">Cerrar sesión</button>
+      </div>
+    </header>
+    <main id="mainLayout">
+      <div id="forms" class="forms-grid"></div>
+      <div class="form-panel">
+        <div class="form-panel-header">
+          <span id="expandTitle" class="expand-title"></span>
+          <button id="expandClose" aria-label="Cerrar">✕</button>
+        </div>
+        <iframe id="formFrame" src="" frameborder="0"></iframe>
+      </div>
+    </main>
+    <script type="module" src="js/jefesDashboard.js"></script>
+  </body>
+</html>
