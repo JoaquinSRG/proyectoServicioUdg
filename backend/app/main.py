@@ -43,7 +43,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     if not user.depto_rel:
         raise HTTPException(status_code=400, detail="Usuario sin departamento asignado")
 
-    # El token lleva el código del departamento (ej: 'admin')
     access_token = auth.create_access_token(
         data={"sub": user.email, "dept": user.depto_rel.codigo, "acces": user.acces}
     )
@@ -79,18 +78,31 @@ def listar_departamentos(db: Session = Depends(get_db)):
 
 @app.get("/usuarios", response_model=List[schemas.UserResponse])
 def listar_usuarios(db: Session = Depends(get_db), current_user: dict = Depends(auth.get_current_user)):
-    print("--- DEPURACIÓN DE PERMISOS ---")
-    print("Departamento recibido:", repr(current_user.get("departamento")))
-    print("Tipo de Departamento:", type(current_user.get("departamento")))
-    print("Acceso recibido:", repr(current_user.get("acces")))
-    print("Tipo de Acceso:", type(current_user.get("acces")))
-    print("------------------------------")
     if current_user["departamento"] != "admin" and int(current_user["acces"]) != 1:
         raise HTTPException(status_code=403, detail="No autorizado")
+
+    departamento_actual = (
+    db.query(models.DepartamentoDB)
+    .filter(
+        models.DepartamentoDB.codigo == current_user["departamento"]
+    )
+    .first()
+)
+
+    if not departamento_actual:
+        raise HTTPException(
+            status_code=404,
+            detail="Departamento no encontrado"
+    )
     
 
     if current_user["acces"] == 1:
-        usuarios = db.query(models.UserDB).join(models.UserDB.depto_rel).filter(models.DepartamentoDB.codigo==current_user["departamento"]).all()
+        usuarios = db.query(models.UserDB).join(models.UserDB.depto_rel).filter(
+            (models.DepartamentoDB.codigo==current_user["departamento"]) |
+            (models.DepartamentoDB.id_jefe_depto == departamento_actual.id)
+
+            ).all()
+
         return [
                     {
                         "id": u.id,
@@ -150,6 +162,30 @@ def crear_usuario(
         "acces":nuevo_db_user.acces
     }
 
+@app.put("/admin/depto/{depto_id}", response_model=dict)
+def actualizar_depto(
+depto_id: int,
+depto_data: schemas.DeptoUpdate, 
+db: Session = Depends(get_db), 
+current_user: dict = Depends(auth.get_current_user)
+):
+    if current_user["departamento"] != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado para modificar departamentos")
+    db_depto= db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == depto_id).first()
+    if not db_depto:
+        raise HTTPException(status_code=404, detail="Departamento no encontrado")
+
+    payload = depto_data.model_dump(exclude_unset=True)
+
+    for key, value in payload.items():
+        if hasattr(db_depto, key): 
+                   setattr(db_depto, key, value) 
+
+    db.add(db_depto)
+    db.commit()
+    db.refresh(db_depto)
+    return {"detail": f"Departamento '{db_depto.nombre}' actualizado con éxito."}
+
 @app.put("/admin/usuarios/{usuario_id}", response_model=dict)
 def actualizar_usuario(
     usuario_id: int, 
@@ -170,11 +206,11 @@ def actualizar_usuario(
     if current_user["acces"] == 1 and depto.codigo != current_user["departamento"]:
         raise HTTPException(status_code=404, detail="Usuario no pertenece a tu Departamento")
 
-    # 3. Guardar estado anterior para el registro de auditoría
+    
     datos_anteriores = f"Nombre: {db_usuario.nombre}, Email: {db_usuario.email}, Depto: {db_usuario.id_departamento}"
 
-    # 4. Actualizar los campos que fueron enviados en la petición
-    payload = usuario_data.model_dump(exclude_unset=True) # exclude_unset evita sobreescribir con None lo que no se mandó
+    
+    payload = usuario_data.model_dump(exclude_unset=True) 
 
 
     if "id_departamento" in payload:
@@ -333,23 +369,15 @@ def leer_mis_formularios(
     ahora = datetime.now()
     es_admin = current_user["departamento"] == "admin"
 
-    # 1. Buscamos el depto del usuario
     depto = db.query(models.DepartamentoDB).filter(
         models.DepartamentoDB.codigo == current_user["departamento"]
     ).first()
-
     if not depto and not es_admin:
         raise HTTPException(status_code=404, detail="Departamento no encontrado")
 
-    # 2. Construcción de la consulta inteligente
     query = db.query(models.FormularioDB).outerjoin(models.FormScheduleDB)
-
     if not es_admin:
-        # Filtro de departamento
         query = query.filter(models.FormularioDB.id_departamento == depto.id)
-        
-        # FILTRO DE TIEMPO:
-        # Mostrar si: (No tiene programación) O (Está dentro del rango)
         query = query.filter(
             or_(
                 models.FormScheduleDB.id == None,
@@ -361,7 +389,6 @@ def leer_mis_formularios(
         )
 
     formularios = query.all()
-    
     return [
         {
             "id": f.id,
@@ -372,7 +399,7 @@ def leer_mis_formularios(
             "nombre_departamento": f.depto_rel.nombre
         } for f in formularios
     ]
-# --- CRUD ADICIONAL DE FORMULARIOS ---
+
 
 @app.put("/formularios/{form_id}", response_model=schemas.FormResponse)
 def actualizar_formulario(
@@ -381,29 +408,20 @@ def actualizar_formulario(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user)
 ):
-    # SEGURIDAD: Solo admin edita
     if current_user["departamento"] != "admin":
         raise HTTPException(status_code=403, detail="No autorizado")
-
     db_form = db.query(models.FormularioDB).filter(models.FormularioDB.id == form_id).first()
     valores_anteriores = f"Nombre: {db_form.nombre}, Link: {db_form.link}"
     if not db_form:
         raise HTTPException(status_code=404, detail="Formulario no encontrado")
-
-    # Actualizar solo los campos que se enviaron
     update_data = form_data.model_dump(exclude_unset=True)
-    
-    # Si se intenta cambiar el departamento, validar que el nuevo exista
     if "id_departamento" in update_data:
         depto = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == update_data["id_departamento"]).first()
         if not depto:
             raise HTTPException(status_code=404, detail="El nuevo departamento no existe")
-
     for key, value in update_data.items():
         setattr(db_form, key, value)
-
     db.commit()
-
     registrar_log(
         db=db,
         usuario=current_user["email"],
@@ -412,7 +430,6 @@ def actualizar_formulario(
         registro_id=db_form.id,
         detalles=f"Antes -> {valores_anteriores} | Ahora -> Nombre: {db_form.nombre}, Link: {db_form.link}"
     )
-
     db.refresh(db_form)
     
     return {
@@ -511,15 +528,26 @@ def respuestas_por_departamento(
         raise HTTPException(status_code=403, detail="No autorizado")
 
     if current_user["departamento"] == "admin":
-        depto = db.query(models.DepartamentoDB).filter(
-            models.DepartamentoDB.id == depto_id
-        ).first()
+
+        depto = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == depto_id).first()
         if not depto:
             raise HTTPException(status_code=404, detail="Departamento no encontrado")
 
-        forms = db.query(models.FormularioDB).filter(
-            models.FormularioDB.id_departamento == depto_id
-        ).all()
+        departamentos_ids = (
+            db.query(models.DepartamentoDB.id)
+            .filter(
+            (models.DepartamentoDB.id == depto.id) |
+            (models.DepartamentoDB.id_jefe_depto == depto.id)
+            ).all()
+        )
+
+        departamentos_ids = [id for (id,) in departamentos_ids]
+
+        forms = (
+            db.query(models.FormularioDB).filter(models.FormularioDB.id_departamento.in_(departamentos_ids)).all()
+        )
+
+
 
     if current_user["acces"] == 1:
         
@@ -533,9 +561,19 @@ def respuestas_por_departamento(
         if not depto:
             raise HTTPException(status_code=404, detail="Departamento no encontrado")
 
-        forms = db.query(models.FormularioDB).filter(
-            models.FormularioDB.id_departamento == deptoId.id
-        ).all()
+        departamentos_ids = (
+            db.query(models.DepartamentoDB.id)
+            .filter(
+            (models.DepartamentoDB.id == depto.id) |
+            (models.DepartamentoDB.id_jefe_depto == depto.id)
+            ).all()
+        )
+
+        departamentos_ids = [id for (id,) in departamentos_ids]
+
+        forms = (
+            db.query(models.FormularioDB).filter(models.FormularioDB.id_departamento.in_(departamentos_ids)).all()
+        )
         
 
     salida = []
@@ -560,7 +598,7 @@ def respuestas_por_departamento(
 @app.get("/test-cron")
 def probar_cron_manualmente(db: Session = Depends(get_db)):
     from app.scheduler import evaluar_y_notificar_formularios
-    print("🚀 Forzando la ejecución del scheduler manualmente...")
+    print(" Forzando la ejecución del scheduler manualmente...")
     evaluar_y_notificar_formularios()
     return {"detail": "Función ejecutada. Revisa los logs de Render ahora."}
 
@@ -569,7 +607,6 @@ def descargar_reporte_excel(
     formularios_ids: list[int] = Body(..., embed=True), 
     db: Session = Depends(get_db)
 ):
-    # Llama al servicio que procesa todo en memoria y devuelve el archivo directamente
     return report_service.generar_excel_consolidado(formularios_ids, db)
 
 @app.post("/admin/reportes/exportar-pdf")
@@ -577,15 +614,13 @@ def exportar_reporte_pdf(
     formularios_ids: list[int] = Body(..., embed=True), 
     db: Session = Depends(get_db)
 ):
-    """Descarga un documento PDF formal con tablas consecutivas."""
     return report_service.generar_pdf_consolidado(formularios_ids, db)
 
 @app.get("/formularios/{form_id}/encabezados", response_model=List[Dict[str, Any]])
 def obtener_encabezados(
     form_id: int, 
     db: Session = Depends(get_db),
-    current_user: models.UserDB = Depends(auth.get_current_user) # Si requiere autenticación
-    
+    current_user: models.UserDB = Depends(auth.get_current_user)
 ):
     if current_user["departamento"] != "admin":
             raise HTTPException(status_code=403, detail="No autorizado")

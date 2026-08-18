@@ -44,6 +44,10 @@ class UpdatePassword(BaseModel):
 class DeptoBase(BaseModel):
     nombre: str
     codigo: str
+    id_jefe_depto: Optional[int] = None
+
+class DeptoUpdate(BaseModel):
+    id_jefe_depto: Optional[int] = None
 
 class DeptoCreate(DeptoBase):
     pass

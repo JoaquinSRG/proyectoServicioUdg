@@ -9,8 +9,7 @@ class DepartamentoDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, unique=True, index=True)
     codigo = Column(String, unique=True, index=True) # ej: 'admin', 'ventas'
-    id_jefe_depto = Column(Integer, ForeignKey("departamentos.id"), nullable=True) # depto del que este depto es subordinado
-
+    id_jefe_depto = Column(Integer, ForeignKey("departamentos.id"), nullable=True)
     # Relación: Un depto tiene muchos usuarios
     usuarios = relationship("UserDB", back_populates="depto_rel")
 
