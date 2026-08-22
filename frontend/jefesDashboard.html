@@ -19,16 +19,32 @@
         <button id="logOut">Cerrar sesión</button>
       </div>
     </header>
-    <main id="mainLayout">
-      <div id="forms" class="forms-grid"></div>
-      <div class="form-panel">
-        <div class="form-panel-header">
-          <span id="expandTitle" class="expand-title"></span>
-          <button id="expandClose" aria-label="Cerrar">✕</button>
+    <div class="dash-columns">
+      <main id="mainLayout">
+        <div id="forms" class="forms-grid"></div>
+        <div class="form-panel">
+          <div class="form-panel-header">
+            <span id="expandTitle" class="expand-title"></span>
+            <button id="expandClose" aria-label="Cerrar">✕</button>
+          </div>
+          <iframe id="formFrame" src="" frameborder="0"></iframe>
         </div>
-        <iframe id="formFrame" src="" frameborder="0"></iframe>
-      </div>
-    </main>
+      </main>
+      <section class="resp-panel">
+        <h2>Respuestas de tu equipo</h2>
+        <div class="resp-controls">
+          <select id="ruUsuario"></select>
+          <button id="ruVer">Ver respuestas</button>
+          <label class="resp-toggle"
+            ><input type="checkbox" id="ruExpandir" /> Mostrar tablas
+            desplegadas</label
+          >
+        </div>
+        <div id="ruOut" class="resp-placeholder">
+          Selecciona un usuario y da "Ver respuestas".
+        </div>
+      </section>
+    </div>
     <script type="module" src="js/jefesDashboard.js"></script>
   </body>
 </html>

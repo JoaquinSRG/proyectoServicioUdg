@@ -295,13 +295,15 @@ button:disabled {
 }
 
 /* ─── Respuestas por departamento (tablas colapsables) ─── */
-.page-admin .resp-form-row {
+.page-admin .resp-form-row,
+.page-user .resp-form-row {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 1.25rem 0 0.25rem;
 }
-.page-admin .resp-form {
+.page-admin .resp-form,
+.page-user .resp-form {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -377,22 +379,39 @@ button:disabled {
   border: none;
   display: block;
 }
-.page-admin .resp-chevron {
+.page-user .resp-panel input,
+.page-user .resp-panel select {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1px solid #c5c8ce;
+  background: #eef2fb;
+  padding: 10px 12px;
+  font-size: 14px;
+  margin-bottom: 1rem;
+  outline: none;
+}
+.page-admin .resp-chevron,
+.page-user .resp-chevron {
   display: inline-block;
   font-size: 11px;
   color: #888;
   transition: transform 0.15s ease;
 }
-.page-admin .resp-block.is-open .resp-chevron {
+.page-admin .resp-block.is-open .resp-chevron,
+.page-user .resp-block.is-open .resp-chevron {
   transform: rotate(90deg);
 }
-.page-admin .resp-body {
+.page-admin .resp-body,
+.page-user .resp-body {
   display: none;
 }
-.page-admin .resp-block.is-open .resp-body {
+.page-admin .resp-block.is-open .resp-body,
+.page-user .resp-block.is-open .resp-body {
   display: block;
 }
-.page-admin .resp-toggle {
+.page-admin .resp-toggle,
+.page-user .resp-toggle {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -403,20 +422,24 @@ button:disabled {
   cursor: pointer;
   white-space: nowrap;
 }
-.page-admin .resp-toggle input {
+.page-admin .resp-toggle input,
+.page-user .resp-toggle input {
   width: auto;
   margin: 0;
 }
-.page-admin .resp-count {
+.page-admin .resp-count,
+.page-user .resp-count {
   color: #888;
   font-weight: 400;
 }
-.page-admin .resp-empty {
+.page-admin .resp-empty,
+.page-user .resp-empty {
   font-size: 13px;
   color: #888;
   margin: 0.25rem 0 1rem;
 }
-.page-admin .resp-scroll {
+.page-admin .resp-scroll,
+.page-user .resp-scroll {
   display: block;
   width: fit-content;
   max-width: 100%;
@@ -425,30 +448,36 @@ button:disabled {
   border: 1px solid #e3e5e9;
   border-radius: 4px;
 }
-.page-admin .resp-table {
+.page-admin .resp-table,
+.page-user .resp-table {
   border-collapse: collapse;
   font-size: 12px;
   width: auto;
 }
 .page-admin .resp-table th,
-.page-admin .resp-table td {
+.page-admin .resp-table td,
+.page-user .resp-table th,
+.page-user .resp-table td {
   border: 1px solid #e3e5e9;
   padding: 6px 8px;
   text-align: left;
   white-space: nowrap;
 }
-.page-admin .resp-table thead th {
+.page-admin .resp-table thead th,
+.page-user .resp-table thead th {
   background: #eef2fb;
   position: sticky;
   top: 0;
 }
 
 /* ─── Panel de respuestas inline ─── */
-.page-admin .resp-panel {
+.page-admin .resp-panel,
+.page-user .resp-panel {
   display: block;
   min-width: 0;
 }
-.page-admin .resp-controls {
+.page-admin .resp-controls,
+.page-user .resp-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -456,21 +485,43 @@ button:disabled {
   width: 100%;
 }
 .page-admin #rDepto,
-.page-admin #ruUsuario {
+.page-admin #ruUsuario,
+.page-user #ruUsuario {
   width: auto;
   max-width: 100%;
   flex: 1;
   min-width: 120px;
   margin-bottom: 0;
 }
-.page-admin .resp-title {
+.page-admin .resp-title,
+.page-user .resp-title {
   font-size: 16px;
   margin: 1.25rem 0 0.5rem;
   color: #333;
 }
-.page-admin .resp-placeholder {
+.page-admin .resp-placeholder,
+.page-user .resp-placeholder {
   color: #9aa0a6;
   font-size: 13px;
+}
+.page-user .dash-columns {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+.page-user .resp-panel {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+}
+.page-user .resp-panel h2 {
+  font-size: 15px;
+  color: #6b6e75;
+  margin-top: 0;
 }
 
 /* ─── page-user ──────────────────────────────────────────── */

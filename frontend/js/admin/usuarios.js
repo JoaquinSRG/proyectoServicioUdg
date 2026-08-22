@@ -28,8 +28,9 @@ export function initUsuarios() {
       email: val("uEmail"),
       password: val("uPass"),
       id_departamento: +val("uDepto"),
+      acces: $("uAcces").value === "1" ? 1 : null,
     });
-    clear("uNombre", "uEmail", "uPass");
+    clear("uNombre", "uEmail", "uPass", "uAcces");
     await loadUserSelects();
     notify(`Usuario #${u.id} "${u.nombre}" registrado (${u.departamento}).`);
   });
@@ -46,9 +47,11 @@ export function initUsuarios() {
     }
     if (val("uePass")) c.password = val("uePass");
     if ($("ueDepto").value) c.id_departamento = +$("ueDepto").value;
+    if ($("ueAcces").value === "1") c.acces = 1;
+    else if ($("ueAcces").value === "none") c.acces = null;
     if (!Object.keys(c).length) return notify("No hay cambios para guardar.", "error");
     const res = await api(`/admin/usuarios/${id}`, "PUT", c);
-    clear("ueSelect", "ueNombre", "ueEmail", "uePass", "ueDepto");
+    clear("ueSelect", "ueNombre", "ueEmail", "uePass", "ueDepto", "ueAcces");
     await loadUserSelects();
     notify(res.detail);
   });

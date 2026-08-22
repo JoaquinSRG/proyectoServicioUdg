@@ -10,7 +10,10 @@
     <title>Admin Dashboard</title>
     <link rel="icon" href="assets/images/udgPlusLogInLogo.jpg" />
     <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css"
+    />
   </head>
   <body class="page-admin">
     <header class="admin-header">
@@ -25,15 +28,31 @@
         <section class="card collapsed">
           <div class="card-header">
             <h2>Programar formulario</h2>
-            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+            <button
+              class="card-toggle"
+              aria-expanded="false"
+              aria-label="Expandir sección"
+            >
+              &#9660;
+            </button>
           </div>
           <div class="card-body">
             <h2>Establecer fechas de apertura y cierre</h2>
             <select id="pSelect"></select>
             <label for="pInicio">Fecha y hora de inicio</label>
-            <input type="text" id="pInicio" placeholder="Selecciona fecha y hora" readonly />
+            <input
+              type="text"
+              id="pInicio"
+              placeholder="Selecciona fecha y hora"
+              readonly
+            />
             <label for="pFin">Fecha y hora de cierre</label>
-            <input type="text" id="pFin" placeholder="Selecciona fecha y hora" readonly />
+            <input
+              type="text"
+              id="pFin"
+              placeholder="Selecciona fecha y hora"
+              readonly
+            />
             <button id="pProgramar">Programar</button>
           </div>
         </section>
@@ -41,11 +60,19 @@
         <section class="card collapsed">
           <div class="card-header">
             <h2>Reportes</h2>
-            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+            <button
+              class="card-toggle"
+              aria-expanded="false"
+              aria-label="Expandir sección"
+            >
+              &#9660;
+            </button>
           </div>
           <div class="card-body">
             <h2>Descargar reporte consolidado</h2>
-            <label for="repSelect">Selecciona uno o más formularios (Ctrl/Cmd + clic)</label>
+            <label for="repSelect"
+              >Selecciona uno o más formularios (Ctrl/Cmd + clic)</label
+            >
             <select id="repSelect" multiple size="6"></select>
             <button id="repExcel">Descargar Excel</button>
             <button id="repPdf">Descargar PDF</button>
@@ -55,7 +82,13 @@
         <section class="card collapsed">
           <div class="card-header">
             <h2>Formularios</h2>
-            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+            <button
+              class="card-toggle"
+              aria-expanded="false"
+              aria-label="Expandir sección"
+            >
+              &#9660;
+            </button>
           </div>
           <div class="card-body">
             <h2>Insertar formularios a la base de datos</h2>
@@ -107,7 +140,13 @@
         <section class="card collapsed">
           <div class="card-header">
             <h2>Usuarios</h2>
-            <button class="card-toggle" aria-expanded="false" aria-label="Expandir sección">&#9660;</button>
+            <button
+              class="card-toggle"
+              aria-expanded="false"
+              aria-label="Expandir sección"
+            >
+              &#9660;
+            </button>
           </div>
           <div class="card-body">
             <h2>Registrar usuario</h2>
@@ -125,11 +164,19 @@
               autocomplete="new-password"
             />
             <select id="uDepto" class="depto-user"></select>
+            <select id="uAcces">
+              <option value="" selected>Normal / subjefe</option>
+              <option value="1">Jefe (ve respuestas de subjefes)</option>
+            </select>
             <button id="uCrear">Registrar usuario</button>
 
             <h2>Editar usuario</h2>
             <select id="ueSelect"></select>
-            <input id="ueNombre" placeholder="Nuevo nombre" autocomplete="off" />
+            <input
+              id="ueNombre"
+              placeholder="Nuevo nombre"
+              autocomplete="off"
+            />
             <input
               id="ueEmail"
               type="email"
@@ -143,6 +190,11 @@
               autocomplete="new-password"
             />
             <select id="ueDepto" class="depto-user"></select>
+            <select id="ueAcces">
+              <option value="" selected>— no cambiar nivel —</option>
+              <option value="1">Jefe (ve respuestas de subjefes)</option>
+              <option value="none">Normal / subjefe</option>
+            </select>
             <button id="ueGuardar">Guardar cambios</button>
 
             <h2>Eliminar usuario</h2>

@@ -1,6 +1,8 @@
 import { api, $, esc, on, requireAuth, safeUrl } from "./core.js";
+import { initRespUsuario } from "./jefes/respuestas.js";
 
 requireAuth();
+initRespUsuario();
 
 on("logOut", () => {
   localStorage.clear();

@@ -216,9 +216,19 @@ def actualizar_usuario(
     if "id_departamento" in payload:
         id_depto = payload.get("id_departamento")
         depto1 = db.query(models.DepartamentoDB).filter(models.DepartamentoDB.id == id_depto).first()
-        if depto1 != current_user["departamento"]:
-             raise HTTPException(status_code=404, detail="No tiene permisos para cambiar el depto")
-    
+        if not depto1:
+            raise HTTPException(status_code=404, detail="El ID de departamento no existe")
+        if current_user["acces"] == 1 and depto1.codigo != current_user["departamento"]:
+             raise HTTPException(status_code=403, detail="No tiene permisos para cambiar el depto")
+
+    if "email" in payload:
+        existente = db.query(models.UserDB).filter(
+            models.UserDB.email == payload["email"],
+            models.UserDB.id != usuario_id,
+        ).first()
+        if existente:
+            raise HTTPException(status_code=400, detail="El correo ya existe, usa otro")
+
     if "password" in payload:
            
         nueva_password = payload.pop("password")
@@ -318,7 +328,8 @@ def crear_admin_inicial():
 async def ver_mi_perfil(current_user: dict = Depends(get_current_user)):
     return {
         "usuario": current_user["email"],
-        "departamento_tag": current_user["departamento"]
+        "departamento_tag": current_user["departamento"],
+        "acces": current_user["acces"]
     }
 
 # --- GESTIÓN DE FORMULARIOS ---
@@ -579,7 +590,7 @@ def respuestas_por_departamento(
     salida = []
     for f in forms:
         item = {
-        "id": f.id, "nombre": f.nombre, "tiene_sheet": False,
+        "id": f.id, "nombre": f.nombre, "id_departamento": f.id_departamento, "tiene_sheet": False,
         "headers": [], "rows": [], "total": 0, "error": None,
         }
         if not f.sheet_id:
