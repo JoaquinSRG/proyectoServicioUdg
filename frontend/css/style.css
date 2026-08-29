@@ -506,7 +506,7 @@ button:disabled {
 }
 .page-user .dash-columns {
   display: flex;
-  gap: 3rem;
+  gap: 1rem;
   align-items: flex-start;
 }
 .page-user .resp-panel {
@@ -557,9 +557,10 @@ button:disabled {
 }
 .page-user .forms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-rows: repeat(8, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: 260px;
   gap: 1rem;
-  flex: 0 0 260px;
   align-self: flex-start;
 }
 .page-user .form-card {
