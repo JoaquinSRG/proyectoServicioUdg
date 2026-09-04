@@ -14,23 +14,56 @@ function sheetIdDe(formId) {
   return f && f.sheet_id;
 }
 
-function botonHoja(sheetId, nombre) {
-  if (!sheetId) return "";
-  return `<button type="button" class="resp-sheet-btn" data-sheet="${esc(sheetId)}" data-nombre="${esc(nombre)}">Editar hoja</button>`;
+// f.ids trae todos los ids de formulario fusionados bajo el mismo nombre
+// (mismo formulario asignado a varios usuarios/deptos => varias hojas).
+// Se muestra un solo botón (la primera hoja disponible).
+function botonesHoja(f) {
+  const sheet = (f.ids || [f.id]).map(sheetIdDe).find(Boolean);
+  if (!sheet) return "";
+  return `<button type="button" class="resp-sheet-btn" data-sheet="${esc(sheet)}" data-nombre="${esc(f.nombre)}">Editar hoja</button>`;
 }
 
-function bloqueForm(id, nombre, count, contenido, abierto) {
+function bloqueForm(f, count, contenido, abierto) {
   return (
     `<div class="resp-block${abierto ? " is-open" : ""}">` +
     `<div class="resp-form-row">` +
     `<button type="button" class="resp-form">` +
-    `<span class="resp-chevron">▸</span> ${esc(nombre)} <span class="resp-count">(${count})</span>` +
+    `<span class="resp-chevron">▸</span> ${esc(f.nombre)} <span class="resp-count">(${count})</span>` +
     `</button>` +
-    botonHoja(sheetIdDe(id), nombre) +
+    botonesHoja(f) +
     `</div>` +
     `<div class="resp-body">${contenido}</div>` +
     `</div>`
   );
+}
+
+// El mismo formulario puede existir como varias filas en la BD (una por
+// usuario/departamento al que se le asignó, cada una con su propia hoja de
+// respuestas), así que aparece repetido al listar por departamento. Se
+// fusionan por nombre y se combinan sus filas en un solo bloque.
+function mergeDuplicados(formularios) {
+  const grupos = new Map();
+  for (const f of formularios) {
+    const key = f.nombre.trim().toLowerCase();
+    if (!grupos.has(key)) grupos.set(key, []);
+    grupos.get(key).push(f);
+  }
+  return [...grupos.values()].map((grupo) => {
+    if (grupo.length === 1) return grupo[0];
+    const conHoja = grupo.filter((f) => f.tiene_sheet);
+    const rows = conHoja.flatMap((f) => f.rows);
+    return {
+      id: grupo[0].id,
+      ids: grupo.map((f) => f.id),
+      nombre: grupo[0].nombre,
+      id_departamento: grupo[0].id_departamento,
+      tiene_sheet: conHoja.length > 0,
+      headers: (conHoja[0] || grupo[0]).headers,
+      rows,
+      total: rows.length,
+      error: conHoja.length ? null : grupo[0].error,
+    };
+  });
 }
 
 function renderForm(f, abierto) {
@@ -48,7 +81,7 @@ function renderForm(f, abierto) {
       .join("");
     contenido = `<div class="resp-scroll"><table class="resp-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
   }
-  return bloqueForm(f.id, f.nombre, f.total, contenido, abierto);
+  return bloqueForm(f, f.total, contenido, abierto);
 }
 
 function renderRespUsuario(f, email, abierto) {
@@ -77,7 +110,7 @@ function renderRespUsuario(f, email, abierto) {
       }
     }
   }
-  return bloqueForm(f.id, f.nombre, count, contenido, abierto);
+  return bloqueForm(f, count, contenido, abierto);
 }
 
 // Igual que embedUrl() en subJefesDashboard.js, pero para Sheets: se abre en
@@ -127,10 +160,11 @@ export function initRespDeptos() {
     out.classList.remove("resp-placeholder");
     out.innerHTML = `<p class="resp-empty">Cargando…</p>`;
     const data = await api(`/departamentos/${id}/respuestas`);
+    const formularios = mergeDuplicados(data.formularios);
     out.innerHTML =
       `<h2 class="resp-title">Respuestas · ${esc(data.departamento)}</h2>` +
-      (data.formularios.length
-        ? data.formularios.map((f) => renderForm(f, abierto)).join("")
+      (formularios.length
+        ? formularios.map((f) => renderForm(f, abierto)).join("")
         : `<p class="resp-empty">Este departamento no tiene formularios.</p>`);
   });
 }
@@ -170,11 +204,12 @@ export async function initRespUsuario() {
     }
 
     const data = await api(`/departamentos/${deptoId}/respuestas`);
+    const formularios = mergeDuplicados(data.formularios);
     const email = u.email.trim().toLowerCase();
     out.innerHTML =
       `<h2 class="resp-title">Respuestas · ${esc(u.nombre)} <span class="resp-count">(${esc(u.email)})</span></h2>` +
-      (data.formularios.length
-        ? data.formularios
+      (formularios.length
+        ? formularios
             .map((f) => renderRespUsuario(f, email, abierto))
             .join("")
         : `<p class="resp-empty">El departamento de este usuario no tiene formularios.</p>`);

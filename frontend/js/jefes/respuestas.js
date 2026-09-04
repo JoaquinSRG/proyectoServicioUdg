@@ -6,6 +6,34 @@ const trimHeaders = (hs) => {
   return h;
 };
 
+// El mismo formulario puede existir como varias filas en la BD (una por
+// usuario al que se le asignó, cada una con su propia hoja de respuestas),
+// así que aparece repetido al listar por departamento. Se fusionan por
+// nombre y se combinan sus filas.
+function mergeDuplicados(formularios) {
+  const grupos = new Map();
+  for (const f of formularios) {
+    const key = f.nombre.trim().toLowerCase();
+    if (!grupos.has(key)) grupos.set(key, []);
+    grupos.get(key).push(f);
+  }
+  return [...grupos.values()].map((grupo) => {
+    if (grupo.length === 1) return grupo[0];
+    const conHoja = grupo.filter((f) => f.tiene_sheet);
+    const rows = conHoja.flatMap((f) => f.rows);
+    return {
+      id: grupo[0].id,
+      nombre: grupo[0].nombre,
+      id_departamento: grupo[0].id_departamento,
+      tiene_sheet: conHoja.length > 0,
+      headers: (conHoja[0] || grupo[0]).headers,
+      rows,
+      total: rows.length,
+      error: conHoja.length ? null : grupo[0].error,
+    };
+  });
+}
+
 function bloqueForm(nombre, count, contenido, abierto) {
   return (
     `<div class="resp-block${abierto ? " is-open" : ""}">` +
@@ -84,7 +112,9 @@ export async function initRespUsuario() {
 
     const data = await api(`/departamentos/${miDepto.id}/respuestas`);
     const email = u.email.trim().toLowerCase();
-    const formularios = data.formularios.filter((f) => f.id_departamento === deptoId);
+    const formularios = mergeDuplicados(
+      data.formularios.filter((f) => f.id_departamento === deptoId),
+    );
     out.innerHTML =
       `<h2 class="resp-title">Respuestas · ${esc(u.nombre)} <span class="resp-count">(${esc(u.email)})</span></h2>` +
       (formularios.length
